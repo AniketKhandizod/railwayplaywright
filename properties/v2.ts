@@ -78,6 +78,30 @@ function loadSecrets(): Record<SecretField, string> {
 
 const secrets = loadSecrets();
 
+function loadApiBaseUrl(): string {
+  const raw = firstDefined(
+    "SELLDO_API_BASE_URL",
+    "SELLDO_BASE_URL",
+    "API_BASE_URL",
+    "CRM_BASE_URL",
+    "BASE_URL",
+  );
+  if (raw === undefined) {
+    throw new Error(
+      `[properties/v2] Missing API base URL. Set SELDO_API_BASE_URL (e.g. https://your-subdomain.sell.do) in Railway Variables or .env.`,
+    );
+  }
+  const u = raw.replace(/\/$/, "");
+  if (!/^https?:\/\//i.test(u)) {
+    throw new Error(
+      `[properties/v2] API base URL must start with http:// or https://. Got: ${JSON.stringify(raw)}`,
+    );
+  }
+  return u;
+}
+
+const API_BASE_URL = loadApiBaseUrl();
+
 export const properties = {
   // File Paths
   filePath: "/SampleFiles/selldo.gif",
@@ -86,6 +110,8 @@ export const properties = {
   /** When false, `Utils.safeDeleteFile` / `safeDeleteFiles` skip deletion (e.g. keep generated import files for debugging). */
   delete_files: false,
   ImportCount: 1,
+
+  API_BASE_URL,
 
   PASSWORD: secrets.PASSWORD,
   Admin_email: secrets.Admin_email,

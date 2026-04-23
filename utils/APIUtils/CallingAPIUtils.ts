@@ -1,8 +1,9 @@
-import { expect, APIRequestContext, test, request } from "@playwright/test";
+import { expect, APIRequestContext, test } from "@playwright/test";
 import { properties } from "../../properties/v2";
 import { AheadOf, Utils } from "../PlaywrightTestUtils";
 import { CRMAPIUtils } from "./CRMAPIUtils";
 import { LeadAPIUtils } from "./LeadAPIUtils";
+import { newPlaywrightApiContext } from "./newPlaywrightApiContext";
 
 export enum CallDirection {
     Incoming = "1",
@@ -38,7 +39,7 @@ export class CalligAPIUtils {
   private async initializeRequest() {
     if (!this.request) {
       this.utils = new Utils();
-      this.request = await request.newContext();
+      this.request = await newPlaywrightApiContext();
     }
   }
 

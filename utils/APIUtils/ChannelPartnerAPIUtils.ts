@@ -1,5 +1,6 @@
-import { expect, APIRequestContext, request } from "@playwright/test";
+import { expect, APIRequestContext } from "@playwright/test";
 import { Utils } from "../PlaywrightTestUtils";
+import { newPlaywrightApiContext } from "./newPlaywrightApiContext";
 
 export class ChannelPartnerAPIUtils {
   private request: APIRequestContext;
@@ -15,7 +16,7 @@ export class ChannelPartnerAPIUtils {
   private async initializeRequest() {
     if (!this.request) {
       this.utils = new Utils();
-      this.request = await request.newContext();
+      this.request = await newPlaywrightApiContext();
     }
   }
 

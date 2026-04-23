@@ -1,9 +1,10 @@
-import { APIRequestContext, APIResponse, expect, request } from "@playwright/test";
+import { APIRequestContext, APIResponse, expect } from "@playwright/test";
 import { properties } from "../../properties/v2";
 import { AheadOf, Utils } from "../PlaywrightTestUtils";
 import { CRMAPIUtils } from "./CRMAPIUtils";
 import { UserManagementAPIUtils } from "./UserManagementAPIUtils";
 import { BulkActionAPIUtils } from "./BulkActionAPIUtils";
+import { newPlaywrightApiContext } from "./newPlaywrightApiContext";
 
 export enum ActivityType {
   Whatsapp = 'Whatsapp',
@@ -54,7 +55,7 @@ export class LeadAPIUtils {
   private async initializeRequest() {
     if (!this.request) {
       this.utils = new Utils();
-      this.request = await request.newContext();
+      this.request = await newPlaywrightApiContext();
     }
   }
 
@@ -1133,7 +1134,7 @@ export class LeadAPIUtils {
     await this.initializeRequest();
     const dateRange = await this.utils.calculateFutureDate(AheadOf.Day, -365, "dd/MM/yyyy")+" 00:00:00 - "+await this.utils.calculateFutureDate(AheadOf.Day, 0, "dd/MM/yyyy")+" 23:59:59";
 
-    const req = await request.newContext();
+    const req = await newPlaywrightApiContext();
     const response = await req.post(URL, {
       form: {
         reassigned_direction:reassignedDirection,

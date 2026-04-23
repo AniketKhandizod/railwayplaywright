@@ -1,7 +1,8 @@
-import { expect, request } from "@playwright/test";
+import { expect } from "@playwright/test";
 import { properties } from "../../properties/v2";
 import { Utils } from "../PlaywrightTestUtils";
 import { UserManagementAPIUtils } from "./UserManagementAPIUtils";
+import { newPlaywrightApiContext } from "./newPlaywrightApiContext";
 
 export enum MediumType {
   ApiClient = "ApiClient",
@@ -30,7 +31,7 @@ export class RoutingAPIUtils{
     private async getRoutingRules(): Promise<any> {
         const url = `/client/configuration/routing_configuration/routing_rules.json`;
       
-        const req = await request.newContext();
+        const req = await newPlaywrightApiContext();
         const response = await req.get(url, {
           params: {
             client_id: this.clientId,
@@ -45,7 +46,7 @@ export class RoutingAPIUtils{
     private async deleteRoutingRuleById(ruleId: string): Promise<void> {
         const url = `/client/configuration/routing_configuration/routing_rules/${ruleId}.json`;
       
-        const req = await request.newContext();
+        const req = await newPlaywrightApiContext();
         const response = await req.post(url, {
           params: {
             client_id: this.clientId,
@@ -79,7 +80,7 @@ export class RoutingAPIUtils{
      async getRoutingConfiguration(): Promise<any> {
         const url = `/client/configuration/routing_configuration.json`;
       
-        const req = await request.newContext();
+        const req = await newPlaywrightApiContext();
         const response = await req.get(url, {
           params: {
             client_id: this.clientId,
@@ -94,7 +95,7 @@ export class RoutingAPIUtils{
       async updateRoutingConfiguration(): Promise<void> {
         const url = `/client/configuration/routing_configuration.json`;
       
-        const req = await request.newContext();
+        const req = await newPlaywrightApiContext();
         const response = await req.post(url, {
           params: {
             client_id: this.clientId,
@@ -117,7 +118,7 @@ export class RoutingAPIUtils{
       async updateRoutingConfigurationWithArguments(auxiliaryEnabled: boolean, routingStrategy: string, routingPriority: string): Promise<void> {
         const url = `/client/configuration/routing_configuration.json`;
       
-        const req = await request.newContext();
+        const req = await newPlaywrightApiContext();
         const response = await req.post(url, {
           params: {
             client_id: this.clientId,
@@ -141,7 +142,7 @@ export class RoutingAPIUtils{
         const url = `/client/users/change_user_score.json`;
         const utils = new Utils();
         const userManagementAPIUtils = new UserManagementAPIUtils(this.clientId, this.apiKey);
-        const req = await request.newContext();
+        const req = await newPlaywrightApiContext();
         const response = await req.post(url, {
           params: {
             client_id: this.clientId,
@@ -182,7 +183,7 @@ export class RoutingAPIUtils{
       ): Promise<any> {
         const url = `/client/configuration/routing_configuration/routing_rules.json`;
       
-        const req = await request.newContext();
+        const req = await newPlaywrightApiContext();
         
         // Build form data object with only defined values
         const formData: Record<string, string> = {
@@ -274,7 +275,7 @@ export class RoutingAPIUtils{
       ): Promise<any> {
         const url = `/client/configuration/routing_configuration/routing_rules.json`;
       
-        const req = await request.newContext();
+        const req = await newPlaywrightApiContext();
         
         // Build form data object with all fields (using plural form for arrays)
         const formData: Record<string, string> = {
@@ -358,7 +359,7 @@ export class RoutingAPIUtils{
       async updateRoutingRuleById(ruleId: string, salesId: string): Promise<any> {
         const url = `/client/configuration/routing_configuration/routing_rules/${ruleId}.json`;
 
-        const req = await request.newContext();
+        const req = await newPlaywrightApiContext();
 
         // IMPORTANT: `curl` included `routing_rule[stickiness]` twice (`false` then `true`);
         // with object form we can only send one value, so we send the last one (`true`).

@@ -1,7 +1,8 @@
-import { expect, request } from "@playwright/test";
+import { expect } from "@playwright/test";
 import { properties } from "../../properties/v2";
 import { AheadOf, Utils } from "../PlaywrightTestUtils";
 import { CRMAPIUtils } from "./CRMAPIUtils";
+import { newPlaywrightApiContext } from "./newPlaywrightApiContext";
 
 export class SearchListAPIUtils {
   private readonly clientId: string;
@@ -15,7 +16,7 @@ export class SearchListAPIUtils {
    async getListOfSearchlistIdsEnabledOnDashboard(): Promise<string[]> {
     const url = `/client/search_criteria.json`;
     
-    const req = await request.newContext();
+    const req = await newPlaywrightApiContext();
     const response = await req.get(url, {
       params: {
         utf8: "✓",
@@ -42,7 +43,7 @@ export class SearchListAPIUtils {
   async toggleSearchListDashboardVisibility(searchListId: string, enable: boolean): Promise<void> {
     const url = `/client/search_criteria/${searchListId}.json`;
     
-    const req = await request.newContext();
+    const req = await newPlaywrightApiContext();
     const response = await req.post(url, {
       params: {
         api_key: this.apiKey,
@@ -71,7 +72,7 @@ export class SearchListAPIUtils {
 
    // ✅ Get Search List By Sales
    async getSearchListBySales(sl: string, email: string): Promise<number> {
-    const req = await request.newContext();
+    const req = await newPlaywrightApiContext();
     const token = await new CRMAPIUtils(this.clientId, this.apiKey).getUserToken(email, properties.PASSWORD);
     const url = `/client/leads.json`;
     const res = await req.get(url, {
@@ -93,7 +94,7 @@ export class SearchListAPIUtils {
     const utils = new Utils();
     const DateRange = utils.calculateFutureDate(AheadOf.Day, 0, "dd-MM-yyyy") + "to"
     + utils.calculateFutureDate(AheadOf.Day, 0, "dd-MM-yyyy");
-    const req = await request.newContext();
+    const req = await newPlaywrightApiContext();
     const token = await new CRMAPIUtils(this.clientId, this.apiKey).getUserToken(email, properties.PASSWORD);
     const url = `/client/leads.json?called_from=get_leads_count&search_criterium%5Bid%5D=${sl}&search_criterium%5Bsearch%5D=&search_criterium%5Bsearch_attributes%5D%5Bdate_range%5D=actual%3D${DateRange}`;
     const res = await req.get(url, {
@@ -112,7 +113,7 @@ export class SearchListAPIUtils {
   }
 
   async getSearchListCountByAdmin(sl: string): Promise<number> {
-    const req = await request.newContext();
+    const req = await newPlaywrightApiContext();
     const url = `/client/search_criteria/${sl}/get_count.json`;
     const res = await req.get(url, {
       params: {

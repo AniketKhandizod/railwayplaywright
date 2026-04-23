@@ -1,7 +1,8 @@
-import { expect, APIRequestContext, test, request } from "@playwright/test";
+import { expect, APIRequestContext, test } from "@playwright/test";
 import { properties } from "../../properties/v2";
 import { Utils } from "../PlaywrightTestUtils";
 import { CRMAPIUtils } from "./CRMAPIUtils";
+import { newPlaywrightApiContext } from "./newPlaywrightApiContext";
 
 export class BulkActionAPIUtils {
 
@@ -18,7 +19,7 @@ export class BulkActionAPIUtils {
   private async initializeRequest() {
     if (!this.request) {
       this.utils = new Utils();
-      this.request = await request.newContext();
+      this.request = await newPlaywrightApiContext();
     }
   }
 

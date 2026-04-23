@@ -1,6 +1,7 @@
-import { expect, APIRequestContext, test, request } from "@playwright/test";
+import { expect, APIRequestContext, test } from "@playwright/test";
 import { properties } from "../../properties/v2";
 import { Utils } from "../PlaywrightTestUtils";
+import { newPlaywrightApiContext } from "./newPlaywrightApiContext";
 
 export interface DayAvailability {
   sunday?: boolean;
@@ -33,7 +34,7 @@ export class UserAPIUtils {
   async getUserDetails(userId: string): Promise<any> {
     const URL = `/client/users/${userId}.json`;
 
-    const req = await request.newContext();
+    const req = await newPlaywrightApiContext();
     const response = await req.get(URL, {
       params: {
         client_id: this.clientId,
@@ -71,7 +72,7 @@ export class UserAPIUtils {
    */
   private async fetchAllTeams(): Promise<{ _id: string; name: string }[]> {
     const URL = `/client/teams.json`;
-    const req = await request.newContext();
+    const req = await newPlaywrightApiContext();
     const perPageFallback = 15;
     let page = 1;
     const allTeams: { _id: string; name: string }[] = [];
@@ -151,7 +152,7 @@ export class UserAPIUtils {
    */
   async getUserAvailability(userToken: string, userEmail: string, userId: string): Promise<any> {
     const URL = `/client/users/${userId}/edit.json`;
-    const req = await request.newContext();
+    const req = await newPlaywrightApiContext();
     // GET request with JSON body (non-standard but required by API)
     const response = await req.get(URL, {
       headers: {
@@ -183,7 +184,7 @@ export class UserAPIUtils {
   async getUserCallAvailabilities(userToken: string, userEmail: string, userId: string): Promise<any> {
     const URL = `/client/users/${userId}/call-availabilities.json`;
 
-    const req = await request.newContext();
+    const req = await newPlaywrightApiContext();
     // GET request with JSON body (non-standard but required by API)
     const response = await req.get(URL, {
       headers: {
@@ -295,7 +296,7 @@ export class UserAPIUtils {
       },
     };
 
-    const req = await request.newContext();
+    const req = await newPlaywrightApiContext();
     const response = await req.put(URL, {
       headers: {
         "Content-Type": "application/json",
@@ -324,7 +325,7 @@ export class UserAPIUtils {
   async updateUserAvailabilityControl(userToken: string, userEmail: string, enabled: boolean): Promise<any> {
     const URL = `/client/configuration.json`;
 
-    const req = await request.newContext();
+    const req = await newPlaywrightApiContext();
     const response = await req.post(URL, {
       params: {
         api_key: this.apiKey,
@@ -371,7 +372,7 @@ export class UserAPIUtils {
       .join(",");
 
     const URL = `/client/teams/${teamId}.json`;
-    const req = await request.newContext();
+    const req = await newPlaywrightApiContext();
     const response = await req.post(URL, {
       params: {
         api_key: this.apiKey,

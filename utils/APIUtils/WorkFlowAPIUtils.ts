@@ -1,6 +1,7 @@
-import { expect, APIRequestContext, test, request } from "@playwright/test";
+import { expect, APIRequestContext, test } from "@playwright/test";
 import { properties } from "../../properties/v2";
 import { Utils } from "../PlaywrightTestUtils";
+import { newPlaywrightApiContext } from "./newPlaywrightApiContext";
 
 // Enum for Workflow Events based on API response field values
 export enum WorkflowEvent {
@@ -79,7 +80,7 @@ export class WorkFlowAPIUtils {
 
   private async initializeRequest() {
     if (!this.request) {
-      this.request = await request.newContext();
+      this.request = await newPlaywrightApiContext();
     }
   }
 

@@ -1,9 +1,10 @@
-import { APIRequestContext, expect, request } from "@playwright/test";
+import { APIRequestContext, expect } from "@playwright/test";
 import * as fs from "fs";
 import * as path from "path";
 import { Utils } from "../../PlaywrightTestUtils";
 import { properties } from "../../../properties/v2";
 import { CRMAPIUtils, UserRoleFilter } from "../CRMAPIUtils";
+import { newPlaywrightApiContext } from "../newPlaywrightApiContext";
 
 type CreateDeveloperResponse = {
   _id?: string;
@@ -110,7 +111,7 @@ export class InventoryCreator {
   private async initializeRequest() {
     if (!this.requestContext) {
       this.utils = new Utils();
-      this.requestContext = await request.newContext();
+      this.requestContext = await newPlaywrightApiContext();
     }
   }
 

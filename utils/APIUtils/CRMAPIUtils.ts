@@ -1,5 +1,6 @@
-import { expect, APIRequestContext, test, request } from "@playwright/test";
+import { expect, APIRequestContext, test } from "@playwright/test";
 import { properties } from "../../properties/v2";
+import { newPlaywrightApiContext } from "./newPlaywrightApiContext";
 import * as fs from "fs";
 import * as path from "path";
 import { Utils } from "../PlaywrightTestUtils";
@@ -396,7 +397,7 @@ export class CRMAPIUtils {
   }
   private async initializeRequest() {
     if (!this.request) {
-      this.request = await request.newContext();
+      this.request = await newPlaywrightApiContext();
     }
   }
 
@@ -548,7 +549,7 @@ async updateWorkflowEditAccess(enableWorkflowAccess: boolean) {
       },
     };
 
-    const req = await request.newContext();
+    const req = await newPlaywrightApiContext();
     const response = await req.post(URL, {
       params: {
         client_id: this.clientId,
@@ -587,7 +588,7 @@ async updateWorkflowEditAccess(enableWorkflowAccess: boolean) {
           password: properties.PASSWORD,
         },
       };
-      const req = await request.newContext();
+      const req = await newPlaywrightApiContext();
       const response = await req.post(URL, {
         params: {
           client_id: this.clientId,
@@ -618,7 +619,7 @@ async updateWorkflowEditAccess(enableWorkflowAccess: boolean) {
   async dataProvider(df: DataFor): Promise<any> {
     const url = `/client/${df}/data_provider.json`;
 
-    const req = await request.newContext();
+    const req = await newPlaywrightApiContext();
     const response = await req.get(url, {
       params: {
         client_id: this.clientId,
@@ -638,7 +639,7 @@ async updateWorkflowEditAccess(enableWorkflowAccess: boolean) {
   async dataProvider_Source(options: { index: number }): Promise<DataProviderSourceItem> {
     const url = `/client/configuration/data_provider_for_source.json`;
 
-    const req = await request.newContext();
+    const req = await newPlaywrightApiContext();
     const response = await req.get(url, {
       params: {
         client_id: this.clientId,
@@ -679,7 +680,7 @@ async updateWorkflowEditAccess(enableWorkflowAccess: boolean) {
   async dataProvider_SubSource(options: { index: number }): Promise<DataProviderSourceItem> {
     const url = `/client/campaigns/data_provider_subcampaigns.json?only_sub_sources=true`;
 
-    const req = await request.newContext();
+    const req = await newPlaywrightApiContext();
     const response = await req.get(url, {
       params: {
         client_id: this.clientId,
@@ -720,7 +721,7 @@ async updateWorkflowEditAccess(enableWorkflowAccess: boolean) {
   async getConstants(eamil:string): Promise<any> {
     const url = `/client/constants.json`;
     const token = await this.getUserToken(eamil, properties.PASSWORD);
-    const req = await request.newContext();
+    const req = await newPlaywrightApiContext();
     const response = await req.get(url, {
       params: {
         user_token: token,

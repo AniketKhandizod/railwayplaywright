@@ -1,4 +1,5 @@
-import { expect, APIRequestContext, request } from "@playwright/test";
+import { expect, APIRequestContext } from "@playwright/test";
+import { newPlaywrightApiContext } from "./newPlaywrightApiContext";
 
 /**
  * Webhook event types supported by sell.do API.
@@ -142,7 +143,7 @@ export class WebhookConfigurationAPIUtils {
 
   private async initializeRequest() {
     if (!this.request) {
-      this.request = await request.newContext();
+      this.request = await newPlaywrightApiContext();
     }
   }
 
