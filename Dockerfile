@@ -7,8 +7,8 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 
-COPY playwright.config.ts ./
-COPY tests ./tests/
+# Full app source (tests import pages/, utils/, properties/, etc.). Partial COPY breaks on Railway/Linux.
+COPY . .
 
 ENV CI=true
 ENV PLAYWRIGHT_HTML_OPEN=never
