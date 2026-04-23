@@ -7,9 +7,7 @@ WORKDIR /app
 COPY package.json package-lock.json* ./
 RUN npm ci
 
-COPY playwright.config.ts tsconfig.json ./
-COPY Environment ./Environment
-COPY tests ./tests
+COPY ...
 
 ENV CI=true
 
