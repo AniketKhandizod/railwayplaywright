@@ -5,3 +5,11 @@ blob-report
 .git
 playwright/.cache
 *.md
+Dockerfile
+.dockerignore
+.env
+.env.*
+npm-debug.log*
+yarn-error.log*
+coverage
+.turbo

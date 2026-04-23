@@ -1,15 +1,18 @@
-# Pin image tag to the same major Playwright version as package.json.
+# syntax=docker/dockerfile:1
+# Keep base image in sync with @playwright/test in package.json.
 # https://playwright.dev/docs/docker
 FROM mcr.microsoft.com/playwright:v1.59.1-jammy
 
 WORKDIR /app
 
-COPY package.json package-lock.json* ./
-RUN npm ci
+# Dependency layer: invalidates only when lockfiles change
+COPY package.json package-lock.json ./
+RUN npm ci --no-audit --no-fund
 
+# Tests, config, and sources (see .dockerignore)
 COPY . .
 
 ENV CI=true
 
-# Image already includes browser binaries matching v1.59.1
+# Image includes browser binaries; CMD runs the suite (Railway/CI)
 CMD ["npx", "playwright", "test"]
