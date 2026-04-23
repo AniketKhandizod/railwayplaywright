@@ -1,110 +1,52 @@
-import { defineConfig, devices } from "@playwright/test";
-import os from "os";
+import { defineConfig, devices } from '@playwright/test';
 
-// Check if the current platform is Windows
-const isWindows = os.platform() === "win32";
-
-// Global variables
-const dimensions = { width: 1366, height: 720 };
-const isHeadless =  true;
-const baseURL = "https://v2.sell.do";
-const screenshot = "only-on-failure";  // >> //on // off // only-on-failure
-const trace = "on";     // >> // on // off // retain-on-failure
-const video = "retain-on-failure";     // >> // on // off // retain-on-failure // on-first-retry
+/**
+ * Read environment variables from file.
+ * https://github.com/motdotla/dotenv
+ */
+// import dotenv from 'dotenv';
+// import path from 'path';
+// dotenv.config({ path: path.resolve(__dirname, '.env') });
 
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
-  /* Test directory */
-  testDir: "./tests",
+  testDir: './tests',
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
-  forbidOnly: !isWindows, //!!process.env.CI,
+  forbidOnly: !!process.env.CI,
   /* Retry on CI only */
-  retries: !isWindows ? 2 : 0,//process.env.CI ? 2 : 0,
+  retries: process.env.CI ? 2 : 0,
   /* Opt out of parallel tests on CI. */
-  workers: !isWindows ? 5 : undefined,
+  workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: [
-    ['list'],
-    ['allure-playwright'],
-    ['html', { open: 'never' }],
-  ],
+  reporter: 'html',
+  /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
+  use: {
+    /* Base URL to use in actions like `await page.goto('')`. */
+    // baseURL: 'http://localhost:3000',
 
-  // Each test is given 2 minutes. (2 minutes)
-  timeout: 2 * 60 * 1000,
-
-  expect: {
-    toMatchSnapshot: {
-      threshold: 0.2,
-      maxDiffPixelRatio: 0.1,
-    },
-    // Exceptional timeout for long running tests (2 minutes)
-    timeout: 2 * 60 * 1000,
+    /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
+    trace: 'on-first-retry',
   },
 
   /* Configure projects for major browsers */
   projects: [
     {
-      name: "chromium",
-      use: {
-        baseURL: baseURL,
-        browserName: "chromium",// chromium // firefox // webkit
-        trace: trace,// on // off // only on-failure
-        viewport: dimensions,
-        screenshot: screenshot,
-        headless: isHeadless,
-      },
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'] },
     },
 
     {
       name: 'firefox',
-      use: {
-        baseURL: baseURL,
-        browserName: "firefox",// chromium // firefox // webkit
-        trace: trace,// on // off // only on-failure
-        viewport: dimensions,
-        screenshot: screenshot,
-        headless: isHeadless,
-      },
+      use: { ...devices['Desktop Firefox'] },
     },
 
     {
       name: 'webkit',
-      use: {
-        baseURL: baseURL,
-        browserName: "webkit",// chromium // firefox // webkit
-        trace: trace,// on // off // only on-failure
-        video: video, 
-        viewport: dimensions,
-        screenshot: screenshot,
-        headless: isHeadless,
-
-        permissions: ['geolocation'],
-        geolocation: { latitude: 18.5246, longitude: 73.8786 },
-
-        isMobile: false,
-        hasTouch: false,
-
-        acceptDownloads: true,
-        javaScriptEnabled: true,
-
-        colorScheme: 'dark',
-
-        ignoreHTTPSErrors: false,
-        locale: 'en-IN',
-        timezoneId: 'Asia/Kolkata',
-
-        //...devices['iPhone 12']
-      },
-      //grep: /@web|@mobile/,
-      //grepInvert: /@web/,
-    },
-    {
-      name: 'Google Chrome',
-      use: { ...devices['Desktop Chrome'], channel: 'chrome' },
+      use: { ...devices['Desktop Safari'] },
     },
 
     /* Test against mobile viewports. */
@@ -125,13 +67,13 @@ export default defineConfig({
     // {
     //   name: 'Google Chrome',
     //   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
-    // }, 
+    // },
   ],
 
   /* Run your local dev server before starting the tests */
   // webServer: {
   //   command: 'npm run start',
-  //   url: 'http://127.0.0.1:3000',
+  //   url: 'http://localhost:3000',
   //   reuseExistingServer: !process.env.CI,
   // },
 });

@@ -3,26 +3,17 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {
-    "test": "node scripts/check-env.cjs && playwright test",
-    "test:all": "node scripts/check-env.cjs && cross-env PW_ALL_TESTS=1 playwright test",
-    "test:smoke": "node scripts/check-env.cjs && cross-env PW_SMOKE_ONLY=1 playwright test",
-    "test:headed": "node scripts/check-env.cjs && playwright test --headed",
-    "test:light": "cross-env PW_SKIP_ENV_CHECK=1 playwright test",
-    "start": "node scripts/check-env.cjs && playwright test"
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git@github-personal:AniketKhandizod/railwayplaywright.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "devDependencies": {
-    "@faker-js/faker": "^9.9.0",
     "@playwright/test": "^1.59.1",
-    "@types/node": "^25.6.0",
-    "cross-env": "^7.0.3",
-    "dayjs": "^1.11.13",
-    "dotenv": "^16.4.7",
-    "luxon": "^3.5.0",
-    "xlsx": "^0.18.5"
+    "@types/node": "^25.6.0"
   }
 }
