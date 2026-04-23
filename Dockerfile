@@ -10,6 +10,9 @@ RUN npm ci
 COPY playwright.config.ts tsconfig.json ./
 COPY Environment ./Environment
 COPY tests ./tests
+COPY utils ./utils
+COPY dataProvider ./dataProvider
+COPY pages ./pages
 
 ENV CI=true
 
