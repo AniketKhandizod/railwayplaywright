@@ -1,31 +1,82 @@
 import path from "path";
 import { config as loadEnv } from "dotenv";
 
-const isRailway = !!(process.env.RAILWAY_ENVIRONMENT || process.env.RAILWAY);
+/**
+ * Merge root `.env` if it exists. Default `dotenv` does not override vars already set
+ * (e.g. Railway-injected), so deploy + local both behave correctly.
+ */
+loadEnv({ path: path.join(__dirname, "..", ".env") });
 
-/** Local / Windows: load `.env` from project root. Railway injects vars directly — no file. */
-if (!isRailway) {
-  loadEnv({ path: path.join(__dirname, "..", ".env") });
+function firstDefined(...names: string[]): string | undefined {
+  for (const name of names) {
+    const v = process.env[name]?.trim();
+    if (v !== undefined && v !== "") return v;
+  }
+  return undefined;
 }
 
-/**
- * Required env vars (set in Railway → Variables, or in `.env` locally):
- * - SELLD_PASSWORD
- * - SELLD_ADMIN_EMAIL
- * - SELLD_CLIENT_ID
- * - SELLD_FULL_ACCESS_API
- * - SELLD_RESTRICTED_ACCESS_API
- */
-function requireEnv(name: string): string {
-  const v = process.env[name]?.trim();
-  if (v === undefined || v === "") {
+/** Primary name first, then common Railway / typo aliases */
+const SECRETS = {
+  PASSWORD: [
+    "SELLDO_PASSWORD",
+    "SELLD_PASSWORD", // typo seen in older .env.example
+    "E2E_PASSWORD",
+    "PASSWORD",
+  ],
+  Admin_email: [
+    "SELLDO_ADMIN_EMAIL",
+    "SELLD_ADMIN_EMAIL",
+    "E2E_ADMIN_EMAIL",
+    "ADMIN_EMAIL",
+  ],
+  Client_id: [
+    "SELLDO_CLIENT_ID",
+    "SELLD_CLIENT_ID",
+    "E2E_CLIENT_ID",
+    "CLIENT_ID",
+  ],
+  FullAccess_API: [
+    "SELLDO_FULL_ACCESS_API",
+    "SELLD_FULL_ACCESS_API",
+    "FULL_ACCESS_API",
+  ],
+  RestrictedAccess_API: [
+    "SELLDO_RESTRICTED_ACCESS_API",
+    "SELLD_RESTRICTED_ACCESS_API",
+    "RESTRICTED_ACCESS_API",
+  ],
+} as const;
+
+type SecretField = keyof typeof SECRETS;
+
+function loadSecrets(): Record<SecretField, string> {
+  const missing: string[] = [];
+  const out = {} as Record<SecretField, string>;
+
+  for (const field of Object.keys(SECRETS) as SecretField[]) {
+    const aliases = SECRETS[field];
+    const v = firstDefined(...aliases);
+    if (v === undefined) {
+      missing.push(
+        `${field}: set ${aliases[0]} (or alias: ${aliases.slice(1).join(", ")})`
+      );
+    } else {
+      out[field] = v;
+    }
+  }
+
+  if (missing.length > 0) {
     throw new Error(
-      `[properties/v2] Missing required environment variable: ${name}. ` +
-        `Add it in Railway Variables or create a local .env (see .env.example).`
+      `[properties/v2] Missing ${missing.length} credential(s). Add them in Railway → Service → Variables (shared vars must be linked to this service), or in project root .env:\n` +
+        missing.map((line) => `  • ${line}`).join("\n") +
+        `\nSee .env.example for names.`
     );
   }
-  return v;
+
+  return out;
 }
+
+const secrets = loadSecrets();
 
 export const properties = {
   // File Paths
@@ -36,9 +87,9 @@ export const properties = {
   delete_files: false,
   ImportCount: 1,
 
-  PASSWORD: requireEnv("SELLDO_PASSWORD"),
-  Admin_email: requireEnv("SELLDO_ADMIN_EMAIL"),
-  Client_id: requireEnv("SELLDO_CLIENT_ID"),
-  FullAccess_API: requireEnv("SELLDO_FULL_ACCESS_API"),
-  RestrictedAccess_API: requireEnv("SELLDO_RESTRICTED_ACCESS_API"),
+  PASSWORD: secrets.PASSWORD,
+  Admin_email: secrets.Admin_email,
+  Client_id: secrets.Client_id,
+  FullAccess_API: secrets.FullAccess_API,
+  RestrictedAccess_API: secrets.RestrictedAccess_API,
 };
