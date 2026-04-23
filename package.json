@@ -1,9 +1,13 @@
 {
   "name": "railwayplaywright",
   "version": "1.0.0",
-  "description": "",
+  "description": "Playwright smoke tests for railway.com, optimized for Railway.app",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "test": "playwright test",
+    "test:smoke": "cross-env PLAYWRIGHT_SLIM_MATRIX=1 playwright test",
+    "test:matrix": "cross-env PLAYWRIGHT_FULL_MATRIX=1 playwright test"
+  },
   "repository": {
     "type": "git",
     "url": "git@github-personal:AniketKhandizod/railwayplaywright.git"
@@ -12,8 +16,12 @@
   "author": "",
   "license": "ISC",
   "type": "commonjs",
+  "dependencies": {
+    "@playwright/test": "1.59.1"
+  },
   "devDependencies": {
-    "@playwright/test": "^1.59.1",
-    "@types/node": "^25.6.0"
+    "@types/node": "^25.6.0",
+    "cross-env": "^7.0.3",
+    "typescript": "^5.9.0"
   }
 }
