@@ -25,7 +25,6 @@ test.describe('railway.com', () => {
 });
 
 test('Testrail', async ({ page }) => {
-  await page.goto('/');
   console.log("SELLD_ADMIN_EMAIL: ", properties.Admin_email);
   console.log("SELLD_CLIENT_ID: ", properties.CLIENT_ID);
   console.log("SELLD_FULL_ACCESS_API: ", properties.FULL_ACCESS_API);
