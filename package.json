@@ -4,11 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "playwright test",
-    "test:all": "cross-env PW_ALL_TESTS=1 playwright test",
-    "test:smoke": "cross-env PW_SMOKE_ONLY=1 playwright test",
-    "test:headed": "playwright test --headed",
-    "start": "playwright test"
+    "test": "node scripts/check-env.cjs && playwright test",
+    "test:all": "node scripts/check-env.cjs && cross-env PW_ALL_TESTS=1 playwright test",
+    "test:smoke": "node scripts/check-env.cjs && cross-env PW_SMOKE_ONLY=1 playwright test",
+    "test:headed": "node scripts/check-env.cjs && playwright test --headed",
+    "start": "node scripts/check-env.cjs && playwright test"
   },
   "keywords": [],
   "author": "",

@@ -88,6 +88,7 @@ function looksLikeHostname(s: string): boolean {
 function loadApiBaseUrl(): string {
   const raw = firstDefined(
     "SELLDO_API_BASE_URL",
+    "SELLDO_API_BASEURL",
     "SELLDO_BASE_URL",
     "SELLDO_SITE_URL",
     "API_BASE_URL",

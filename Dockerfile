@@ -14,4 +14,5 @@ ENV CI=true
 ENV PLAYWRIGHT_HTML_OPEN=never
 
 # Official image already includes browser binaries; no `playwright install` needed.
-CMD ["npx", "playwright", "test"]
+# Preflight prints clear missing-variable errors (avoids misleading "No tests found").
+CMD ["sh", "-c", "node scripts/check-env.cjs && exec npx playwright test"]
