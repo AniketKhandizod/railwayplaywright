@@ -27,11 +27,11 @@ const desktopWebkit = {
 };
 
 /**
- * Local / full matrix: Chromium, Firefox, WebKit.
- * Railway: Chromium only (lower memory and faster cold start on small instances).
+ * Local: Chromium, Firefox, WebKit.
+ * Railway (after deploy): WebKit only, headless + serial (see workers / fullyParallel below).
  */
 const projects = isRailway
-  ? [desktopChromium]
+  ? [desktopWebkit]
   : [desktopChromium, desktopFirefox, desktopWebkit];
 
 export default defineConfig({
@@ -53,7 +53,7 @@ export default defineConfig({
       ]
     : 'html',
   use: {
-    /* Headless is required on Railway; keep headed available locally via --headed */
+    /* Railway / CI: always headless. Local: default headless; use --headed to override. */
     headless: isCiLike ? true : undefined,
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
