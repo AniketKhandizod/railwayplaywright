@@ -1,5 +1,5 @@
 import { APIRequestContext, APIResponse, expect, request } from "@playwright/test";
-import { properties } from "../../properties/v2";
+import { properties } from "../../Environment/env";
 import { AheadOf, Utils } from "../PlaywrightTestUtils";
 import { CRMAPIUtils } from "./CRMAPIUtils";
 import { UserManagementAPIUtils } from "./UserManagementAPIUtils";
@@ -38,14 +38,14 @@ export enum SiteVisitAction {
 }
 
 export class LeadAPIUtils {
-  private request: APIRequestContext;
-  private utils: Utils;
+  private request!: APIRequestContext;
+  private utils!: Utils;
 
   private readonly clientId: string;
   private readonly apiKey: string;
   private readonly RestrictedAccess_API: string;
 
-  constructor(clientId: string, FullAccess_API: string, RestrictedAccess_API: string = properties.FullAccess_API){
+  constructor(clientId: string, FullAccess_API: string, RestrictedAccess_API: string = properties.FULL_ACCESS_API as string){
     this.clientId = clientId;
     this.apiKey = FullAccess_API;
     this.RestrictedAccess_API = RestrictedAccess_API;
@@ -125,8 +125,8 @@ export class LeadAPIUtils {
           },
           timeout: 30000, // 30 second timeout
         });
-        expect(response.ok()).toBeTruthy();
-        return await response.json();
+        expect(response?.ok()).toBeTruthy();
+        return await response?.json();
       } catch (error) {
         lastError = error as Error;
         
@@ -148,7 +148,7 @@ export class LeadAPIUtils {
     messageText: string,
   ): Promise<string> {
     await this.initializeRequest();
-    const url = `/${this.clientId}/${properties.GrowAasan}/whatsapps/whatsapp_handler`;
+    const url = `/${this.clientId}/${String(properties.GROW_AASAN ?? "")}/whatsapps/whatsapp_handler`;
 
     const body = {
       customerMobile: `+91${randomPhone}`,
@@ -162,7 +162,7 @@ export class LeadAPIUtils {
       },
     });
 
-    expect(response.status()).toBe(200);
+    expect(response?.status()).toBe(200);
 
     //console.log(`Incoming WhatsApp Created By GrowAasan >> ${randomPhone}`);
     return randomPhone;
@@ -171,7 +171,7 @@ export class LeadAPIUtils {
   // ✅ Incoming WhatsApp from ADZ
   async incomingWhatsapp_ADZ(randomPhone: string, messageText: string): Promise<string> {
     await this.initializeRequest();
-    const url = `/${this.clientId}/${await this.getAdzWhatsappSettingsId()}/whatsapps/whatsapp_handler`;
+    const url = `/${this.clientId}/${await this.getAdzWhatsappSettingsId() as string}/whatsapps/whatsapp_handler`;
     const body = {
       object: 'whatsapp_business_account',
       entry: [
@@ -219,7 +219,7 @@ export class LeadAPIUtils {
       }
     });
 
-    expect(response.status()).toBe(200);
+    expect(response?.status()).toBe(200);
     return randomPhone;
   }
 
@@ -233,12 +233,12 @@ export class LeadAPIUtils {
 
     const url = `/client/${this.clientId}/mails/mailgun/incoming_mail`;
 
-    const body = {
+    const body: Record<string, string> = {
       'Message-Id': `<PN0PR01MB${randomInt}F2568FAF9@PN0PR01MB6630.INDPRD01.PROD.OUTLOOK.COM>`,
-      'recipient': `${properties.CampeignEmail}${properties.Domain}`,
+      'recipient': `${String(properties.CampeignEmail ?? "")}${String(properties.Domain ?? "")}`,
       'sender': randomEmail,
       'Date': 'Mon, 27 Feb 2023 15:44:35 +0000',
-      'To': `${properties.CampeignEmail}${properties.Domain} <${properties.CampeignEmail}${properties.Domain}>`,
+      'To': `${String(properties.CampeignEmail ?? "")}${String(properties.Domain ?? "")} <${String(properties.CampeignEmail ?? "")}${String(properties.Domain ?? "")}>`,
       'subject': randomFileName,
       'token': `110e8343fe4c1e$452ec408aaede6b2e8${randomPassword}`,
       'timestamp': '1677512679',
@@ -262,7 +262,7 @@ export class LeadAPIUtils {
     const finalLeadId = leadId.length > 10 ? leadId : await this.getLeadId(leadId);
     const url = `/client/leads/${finalLeadId}/emails.json`;
     const crmAPIUtils = new CRMAPIUtils(this.clientId, this.apiKey);
-    const userTokenResponse = await crmAPIUtils.getUserToken(userEmail, properties.PASSWORD);
+    const userTokenResponse = await crmAPIUtils.getUserToken(userEmail, properties.PASSWORD!);
    
     const payload = {
       email: {
@@ -305,14 +305,14 @@ export class LeadAPIUtils {
     const finalLeadId = leadId.length > 10 ? leadId : await this.getLeadId(leadId);
     const url = `/client/leads/${finalLeadId}/smss.json`;
     const crmAPIUtils = new CRMAPIUtils(this.clientId, this.apiKey);
-    const userTokenResponse = await crmAPIUtils.getUserToken(userEmail, properties.PASSWORD);
+    const userTokenResponse = await crmAPIUtils.getUserToken(userEmail, properties.PASSWORD!);
     
     const payload = {
       sms: {
         lead_id: finalLeadId,
         type: "sms",
         content: content,
-        template_id: properties.SMS_Template_ID,
+        template_id: String(properties.SMS_Template_ID ?? ""),
         project_id: projectId || ""
       },
       user_token: userTokenResponse,
@@ -480,13 +480,15 @@ export class LeadAPIUtils {
 
   // ✅ Get Touched Report
   async getTouchedReport(): Promise<Record<string, any>> {
+    await this.initializeRequest();
     const DateRange = await this.utils.calculateFutureDate(AheadOf.Day, -6, "dd/MM/yyyy") + " 00:00:00 - "
     + await this.utils.calculateFutureDate(AheadOf.Day, 0, "dd/MM/yyyy") + " 23:59:59";
     //console.log(DateRange);
     const url = `/client/reports/touched-untouched.json`;
+    const salesId = String(properties.Sales_id ?? "");
     const res = await this.request.post(url, {
       multipart: {
-        current_user_id: properties.Sales_id,
+        current_user_id: salesId,
         currently_in: "both",
         group_by: "sales",
         daterange: DateRange,
@@ -497,13 +499,14 @@ export class LeadAPIUtils {
       },
     });
     const body = await res.json();
-    return body[properties.Sales_id]; // touched // untouched
+    return body[salesId]; // touched // untouched
   }
 
 
   // // >> >> >> >> >> >> >> >> >> >> >> >> >> >> Update lead APIS >> >> >> >> >> >> >> >> >> >> >> >> >> >>
 
   async stageChange(leadId: string, stage: string, status: string): Promise<void> {
+    await this.initializeRequest();
     const finalLeadId = leadId.length > 10 ? leadId : await this.getLeadId(leadId);
     const url = `/client/leads/${finalLeadId}.json`;
 
@@ -531,6 +534,7 @@ export class LeadAPIUtils {
 
   // ✅ Update User Created Tags
   async updateUserCreatedTags(leadId: string, tags: string[]): Promise<void> {
+    await this.initializeRequest();
     const finalLeadId = leadId.length > 10 ? leadId : await this.getLeadId(leadId);
     const url = `/client/leads/${finalLeadId}.json`;
 
@@ -556,11 +560,16 @@ export class LeadAPIUtils {
   async getLeadsWithSearchCriteria(
     searchCriteriumId: string,
     userCreatedTags?: string,
-    dateRange: string = this.utils.calculateFutureDate(AheadOf.Day, 0, "dd-MM-yyyy") + "to" + this.utils.calculateFutureDate(AheadOf.Day, 0, "dd-MM-yyyy"),
+    dateRange?: string,
     page: number = 1,
     perPage: number = 50
   ): Promise<Record<string, any>> {
     await this.initializeRequest();
+    const resolvedDateRange =
+      dateRange ??
+      this.utils.calculateFutureDate(AheadOf.Day, 0, "dd-MM-yyyy") +
+        "to" +
+        this.utils.calculateFutureDate(AheadOf.Day, 0, "dd-MM-yyyy");
     const url = `/client/leads.json`;
     
     const params: Record<string, any> = {
@@ -576,8 +585,8 @@ export class LeadAPIUtils {
       params['search_criterium[lead_attributes][user_created_tags]'] = userCreatedTags;
     }
 
-    if (dateRange) {
-      params['search_criterium[date_range]'] = `actual=${dateRange}`;
+    if (resolvedDateRange) {
+      params['search_criterium[date_range]'] = `actual=${resolvedDateRange}`;
     }
 
     const response = await this.request.get(url, {
@@ -615,7 +624,7 @@ export class LeadAPIUtils {
     const finalLeadId = leadId.length > 10 ? leadId : await this.getLeadId(leadId);
     const url = `/client/leads/${finalLeadId}/site_visits.json`;
     const crmAPIUtils = new CRMAPIUtils(this.clientId, this.apiKey);
-    const userTokenResponse = await crmAPIUtils.getUserToken(userEmail, properties.PASSWORD);
+    const userTokenResponse = await crmAPIUtils.getUserToken(userEmail, properties.PASSWORD!);
 
     const payload = {
       site_visit: {
@@ -675,7 +684,7 @@ export class LeadAPIUtils {
 
     const existingSV = existingSiteVisit.site_visit;
     const crmAPIUtils = new CRMAPIUtils(this.clientId, this.apiKey);
-    const userTokenResponse = await crmAPIUtils.getUserToken(userEmail, properties.PASSWORD);
+    const userTokenResponse = await crmAPIUtils.getUserToken(userEmail, properties.PASSWORD!);
 
     // Prepare the updated site visit object
     let updatedSiteVisit: Record<string, any> = {
@@ -824,7 +833,7 @@ export class LeadAPIUtils {
     const finalLeadId = leadId.length > 10 ? leadId : await this.getLeadId(leadId);
     const url = `/client/leads/${finalLeadId}/followups.json`;
     const crmAPIUtils = new CRMAPIUtils(this.clientId, this.apiKey);
-    const userTokenResponse = await crmAPIUtils.getUserToken(userEmail, properties.PASSWORD);
+    const userTokenResponse = await crmAPIUtils.getUserToken(userEmail, properties.PASSWORD!);
 
     const payload = {
       followup: {
@@ -867,7 +876,7 @@ export class LeadAPIUtils {
     const finalLeadId = leadId.length > 10 ? leadId : await this.getLeadId(leadId);
     const url = `/client/leads/${finalLeadId}/followups/${followupId}.json`;
     const crmAPIUtils = new CRMAPIUtils(this.clientId, this.apiKey);
-    const userTokenResponse = await crmAPIUtils.getUserToken(userEmail, properties.PASSWORD);
+    const userTokenResponse = await crmAPIUtils.getUserToken(userEmail, properties.PASSWORD!);
 
     const response = await this.request.put(url, {
       multipart: {
@@ -1047,7 +1056,7 @@ export class LeadAPIUtils {
     await this.initializeRequest();
     const crmAPIUtils = new CRMAPIUtils(this.clientId, this.apiKey);
     const userId = await crmAPIUtils.getUserId(userEmail);
-    const token = await crmAPIUtils.getUserToken(userEmail, properties.PASSWORD); 
+    const token = await crmAPIUtils.getUserToken(userEmail, properties.PASSWORD!);
     const leadDatabaseId = await this.getLeadId(leadCRMId);
     const dueOn = await this.utils.calculateFutureDate(AheadOf.Day,1,"yyyy-MM-dd HH:mm")+" IST" // yyyy-MM-dd'T'HH:mm:ss.SSS'Z' // 
     const url = `/client/users/${userId}/tasks/`;
@@ -1168,7 +1177,7 @@ export class LeadAPIUtils {
     const finalLeadId = leadCRMId.length > 10 ? leadCRMId : await this.getLeadId(leadCRMId);
     const url = `/client/leads/${finalLeadId}/interested_properties.json`;
     const crmAPIUtils = new CRMAPIUtils(this.clientId, this.apiKey);
-    const userTokenResponse = await crmAPIUtils.getUserToken(userEmail, properties.PASSWORD);
+    const userTokenResponse = await crmAPIUtils.getUserToken(userEmail, properties.PASSWORD!);
 
     // Handle projectIds: convert to array if single string
     let projectIdsArray: string[];
@@ -1431,7 +1440,7 @@ export class LeadAPIUtils {
 
     const payload = {
       client_id: this.clientId,
-      api_key: properties.Facebook_API_Key,
+      api_key: String(properties.Facebook_API_Key ?? ""),
       raw_data: {
         source: "",
         campaign_id: "",
