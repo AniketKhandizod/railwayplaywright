@@ -78,24 +78,62 @@ function loadSecrets(): Record<SecretField, string> {
 
 const secrets = loadSecrets();
 
+function looksLikeHostname(s: string): boolean {
+  if (!s || s.includes("/") || s.includes(" ")) return false;
+  if (s === "localhost" || /^localhost:\d+$/i.test(s)) return true;
+  const h = s.replace(/^\*\./, "");
+  return /^[a-z0-9][-a-z0-9.]*[a-z0-9]$/i.test(h);
+}
+
 function loadApiBaseUrl(): string {
   const raw = firstDefined(
     "SELLDO_API_BASE_URL",
     "SELLDO_BASE_URL",
+    "SELLDO_SITE_URL",
     "API_BASE_URL",
     "CRM_BASE_URL",
+    "CRM_API_URL",
+    "PLAYWRIGHT_BASE_URL",
     "BASE_URL",
   );
-  if (raw === undefined) {
+
+  const subdomainOnly = firstDefined(
+    "SELLDO_SUBDOMAIN",
+    "SELLDO_TENANT",
+    "TENANT_SUBDOMAIN",
+  );
+
+  let candidate = raw;
+  if (candidate === undefined && subdomainOnly !== undefined) {
+    const sub = subdomainOnly
+      .replace(/^https?:\/\//i, "")
+      .split("/")[0]
+      .replace(/\.sell\.do$/i, "")
+      .trim();
+    if (sub) candidate = `https://${sub}.sell.do`;
+  }
+
+  if (candidate === undefined) {
     throw new Error(
-      `[properties/v2] Missing API base URL. Set SELDO_API_BASE_URL (e.g. https://your-subdomain.sell.do) in Railway Variables or .env.`,
+      `[properties/v2] Missing API base URL. In Railway → Variables set SELDO_API_BASE_URL (full URL, e.g. https://your-subdomain.sell.do) ` +
+        `or SELDO_SUBDOMAIN (tenant slug only; expands to https://{slug}.sell.do). ` +
+        `Aliases: SELDO_SITE_URL, CRM_BASE_URL, PLAYWRIGHT_BASE_URL. See .env.example.`
     );
   }
-  const u = raw.replace(/\/$/, "");
+
+  let u = candidate.trim().replace(/\/$/, "");
   if (!/^https?:\/\//i.test(u)) {
-    throw new Error(
-      `[properties/v2] API base URL must start with http:// or https://. Got: ${JSON.stringify(raw)}`,
-    );
+    if (/\.sell\.do$/i.test(u)) {
+      u = `https://${u}`;
+    } else if (/^[a-z0-9][-a-z0-9]*$/i.test(u)) {
+      u = `https://${u}.sell.do`;
+    } else if (looksLikeHostname(u)) {
+      u = `https://${u}`;
+    } else {
+      throw new Error(
+        `[properties/v2] API base URL must be a full https URL or a hostname. Got: ${JSON.stringify(candidate)}`
+      );
+    }
   }
   return u;
 }
