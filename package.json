@@ -6,6 +6,7 @@
   "scripts": {
     "test": "playwright test",
     "test:all": "cross-env PW_ALL_TESTS=1 playwright test",
+    "test:smoke": "cross-env PW_SMOKE_ONLY=1 playwright test",
     "test:headed": "playwright test --headed",
     "start": "playwright test"
   },
