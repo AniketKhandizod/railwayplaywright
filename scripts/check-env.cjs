@@ -71,11 +71,24 @@ function resolveApiBaseUrl() {
   }
 
   if (candidate === undefined) {
-    return {
-      ok: false,
-      detail:
-        "Set SELDO_API_BASE_URL (full URL, e.g. https://your-subdomain.sell.do) or SELDO_SUBDOMAIN (slug only → https://{slug}.sell.do). Aliases: SELDO_SITE_URL, CRM_BASE_URL, PLAYWRIGHT_BASE_URL.",
-    };
+    const onRailway = !!(
+      process.env.RAILWAY_ENVIRONMENT ||
+      process.env.RAILWAY ||
+      process.env.RAILWAY_PROJECT_ID
+    );
+    if (onRailway) {
+      const fallback = "https://v2.sell.do";
+      console.warn(
+        `[check-env] Railway: SELDO_API_BASE_URL / SELDO_SUBDOMAIN not set — defaulting to ${fallback} (matches playwright.config baseURL). Set SELDO_API_BASE_URL or SELDO_SUBDOMAIN for your tenant.`,
+      );
+      candidate = fallback;
+    } else {
+      return {
+        ok: false,
+        detail:
+          "Set SELDO_API_BASE_URL (full URL, e.g. https://your-subdomain.sell.do) or SELDO_SUBDOMAIN (slug only → https://{slug}.sell.do). Aliases: SELDO_SITE_URL, CRM_BASE_URL, PLAYWRIGHT_BASE_URL.",
+      };
+    }
   }
 
   let u = candidate.trim().replace(/\/$/, "");
