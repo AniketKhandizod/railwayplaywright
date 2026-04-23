@@ -4,13 +4,12 @@ FROM mcr.microsoft.com/playwright:v1.59.1-jammy
 
 WORKDIR /app
 
-# Dependencies first (better layer cache)
 COPY package.json package-lock.json* ./
 RUN npm ci
 
-# All project sources (see .dockerignore for exclusions).
-# Covers tests, pages, utils, dataProvider, Environment, properties/, SampleFiles/, etc.
-COPY . .
+COPY playwright.config.ts tsconfig.json ./
+COPY Environment ./Environment
+COPY tests ./tests
 
 ENV CI=true
 
