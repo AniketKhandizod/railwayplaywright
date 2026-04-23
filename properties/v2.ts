@@ -49,6 +49,14 @@ const SECRETS = {
 
 type SecretField = keyof typeof SECRETS;
 
+/** Matches scripts/check-env.cjs — allows importing this module without Railway/.env for UI-only runs. */
+function skipStrictCredentials(): boolean {
+  return (
+    process.env.PW_SKIP_ENV_CHECK === "1" ||
+    process.env.PW_SKIP_ENV_CHECK === "true"
+  );
+}
+
 function loadSecrets(): Record<SecretField, string> {
   const missing: string[] = [];
   const out = {} as Record<SecretField, string>;
@@ -57,9 +65,13 @@ function loadSecrets(): Record<SecretField, string> {
     const aliases = SECRETS[field];
     const v = firstDefined(...aliases);
     if (v === undefined) {
-      missing.push(
-        `${field}: set ${aliases[0]} (or alias: ${aliases.slice(1).join(", ")})`
-      );
+      if (skipStrictCredentials()) {
+        out[field] = "";
+      } else {
+        missing.push(
+          `${field}: set ${aliases[0]} (or alias: ${aliases.slice(1).join(", ")})`
+        );
+      }
     } else {
       out[field] = v;
     }
@@ -116,6 +128,9 @@ function loadApiBaseUrl(): string {
   }
 
   if (candidate === undefined) {
+    if (skipStrictCredentials()) {
+      return "https://example.com";
+    }
     throw new Error(
       `[properties/v2] Missing API base URL. In Railway → Variables set SELDO_API_BASE_URL (full URL, e.g. https://your-subdomain.sell.do) ` +
         `or SELDO_SUBDOMAIN (tenant slug only; expands to https://{slug}.sell.do). ` +
@@ -132,6 +147,9 @@ function loadApiBaseUrl(): string {
     } else if (looksLikeHostname(u)) {
       u = `https://${u}`;
     } else {
+      if (skipStrictCredentials()) {
+        return "https://example.com";
+      }
       throw new Error(
         `[properties/v2] API base URL must be a full https URL or a hostname. Got: ${JSON.stringify(candidate)}`
       );
