@@ -69,7 +69,8 @@ function loadSecrets(): Record<SecretField, string> {
     throw new Error(
       `[properties/v2] Missing ${missing.length} credential(s). Add them in Railway → Service → Variables (shared vars must be linked to this service), or in project root .env:\n` +
         missing.map((line) => `  • ${line}`).join("\n") +
-        `\nSee .env.example for names.`
+        `\nSee .env.example for names.\n` +
+        `Tip: Specs that import this file (or PlaywrightTestUtils / *APIUtils*) need these vars. For UI-only runs, avoid those imports or use PW_SKIP_ENV_CHECK=1 (see package.json test:light).`
     );
   }
 

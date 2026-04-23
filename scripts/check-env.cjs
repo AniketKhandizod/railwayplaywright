@@ -7,6 +7,14 @@
 const path = require("path");
 require("dotenv").config({ path: path.join(__dirname, "..", ".env") });
 
+/** UI-only / smoke without API: set PW_SKIP_ENV_CHECK=1 (do not use on Railway for API tests). */
+if (
+  process.env.PW_SKIP_ENV_CHECK === "1" ||
+  process.env.PW_SKIP_ENV_CHECK === "true"
+) {
+  process.exit(0);
+}
+
 function firstDefined(...names) {
   for (const name of names) {
     const v = process.env[name]?.trim();

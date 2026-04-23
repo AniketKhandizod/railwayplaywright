@@ -8,6 +8,7 @@
     "test:all": "node scripts/check-env.cjs && cross-env PW_ALL_TESTS=1 playwright test",
     "test:smoke": "node scripts/check-env.cjs && cross-env PW_SMOKE_ONLY=1 playwright test",
     "test:headed": "node scripts/check-env.cjs && playwright test --headed",
+    "test:light": "cross-env PW_SKIP_ENV_CHECK=1 playwright test",
     "start": "node scripts/check-env.cjs && playwright test"
   },
   "keywords": [],
