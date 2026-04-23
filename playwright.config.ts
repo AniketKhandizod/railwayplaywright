@@ -7,6 +7,10 @@ import { defineConfig, devices } from '@playwright/test';
 const isRailway = !!(process.env.RAILWAY_ENVIRONMENT || process.env.RAILWAY);
 const isCiLike = !!process.env.CI || isRailway;
 
+/** Run every test (disables @smoke filter). Cross-platform: `npm run test:all` */
+const runAllTests =
+  process.env.PW_ALL_TESTS === '1' || process.env.PW_ALL_TESTS === 'true';
+
 const desktopChromium = {
   name: 'chromium',
   use: { ...devices['Desktop Chrome'] },
@@ -32,10 +36,16 @@ const projects = isRailway
 
 export default defineConfig({
   testDir: './tests',
-  fullyParallel: true,
+  /**
+   * Only run tests whose title matches @smoke (put @smoke in test()/describe() titles).
+   * https://playwright.dev/docs/test-cli#grep
+   */
+  ...(runAllTests ? {} : { grep: /@smoke/ }),
+  /* Strictly serial: one test at a time (equivalent to --workers=1, no in-file parallelism). */
+  fullyParallel: false,
   forbidOnly: isCiLike,
   retries: isCiLike ? 2 : 0,
-  workers: isCiLike ? 1 : undefined,
+  workers: 1,
   reporter: isRailway
     ? [
         ['list'],
