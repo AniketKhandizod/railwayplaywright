@@ -3,5 +3,10 @@ test-results
 playwright-report
 blob-report
 .git
+.github
+.cursor
 playwright/.cache
+playwright/.auth
 *.md
+.DS_Store
+**/.DS_Store
