@@ -2,7 +2,7 @@ import { APIRequestContext, expect, request } from "@playwright/test";
 import * as fs from "fs";
 import * as path from "path";
 import { Utils } from "../../PlaywrightTestUtils";
-import { properties } from "../../../Environment/v2";
+import { properties } from "../../env";
 import { CRMAPIUtils, UserRoleFilter } from "../CRMAPIUtils";
 
 type CreateDeveloperResponse = {

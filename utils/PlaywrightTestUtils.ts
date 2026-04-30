@@ -5,7 +5,7 @@ import path from "path";
 import * as XLSX from "xlsx";
 import { Locator, Page } from "@playwright/test";
 import { isValidPhoneNumber, parsePhoneNumber, type CountryCode } from "libphonenumber-js/max";
-import { properties } from "../Environment/v2";
+import { properties } from "./env";
 
 /** Result of {@link Utils.generateRandomPhoneNumberWithCountry}. */
 export type GeneratedPhoneWithCountry = {

@@ -2,7 +2,7 @@ import * as path from "path";
 import { faker } from "@faker-js/faker";
 import { CSVUtils } from "./CSVUtils";
 import { Utils } from "../PlaywrightTestUtils";
-import { properties } from "../../Environment/v2";
+import { properties } from "../env";
 import { CRMAPIUtils } from "../APIUtils/CRMAPIUtils";
 
 export const CreateHeaderForSRDImport: string[] = [

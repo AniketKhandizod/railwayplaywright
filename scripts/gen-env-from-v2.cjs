@@ -1,7 +1,7 @@
 const fs = require("fs");
 
 const v2Path = "C:\\Users\\admin\\Desktop\\CRM\\properties\\v2.ts";
-const outPath = require("path").join(__dirname, "..", "Environment", "v2.ts");
+const outPath = require("path").join(__dirname, "..", "utils", "env.ts");
 
 const text = fs.readFileSync(v2Path, "utf8");
 const start = text.indexOf("export const properties = {");

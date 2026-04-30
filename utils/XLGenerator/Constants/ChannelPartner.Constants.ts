@@ -1,4 +1,4 @@
-import { properties } from "../../../Environment/v2";
+import { properties } from "../../env";
 
 /** Full channel partner import template (matches legacy sample / fallback column order). */
 export const CreateHeaderForChannelPartnerImport_allFields: string[] = [

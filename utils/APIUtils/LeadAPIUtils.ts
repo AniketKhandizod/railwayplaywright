@@ -1,10 +1,8 @@
 import { APIRequestContext, APIResponse, expect } from "@playwright/test";
-import { properties } from "../../Environment/v2";
-import { AheadOf, Utils } from "../PlaywrightTestUtils";
 import { newCrmApiRequestContext } from "./crmApiContext";
 import { CRMAPIUtils } from "./CRMAPIUtils";
-import { UserManagementAPIUtils } from "./UserManagementAPIUtils";
 import { BulkActionAPIUtils } from "./BulkActionAPIUtils";
+import { AheadOf, Utils } from "../PlaywrightTestUtils";
 
 export enum ActivityType {
   Whatsapp = 'Whatsapp',
@@ -39,6 +37,7 @@ export enum SiteVisitAction {
 }
 
 export class LeadAPIUtils {
+  
   private request!: APIRequestContext;
   private utils!: Utils;
 
@@ -46,7 +45,7 @@ export class LeadAPIUtils {
   private readonly apiKey: string;
   private readonly RestrictedAccess_API: string;
 
-  constructor(clientId: string, FullAccess_API: string, RestrictedAccess_API: string = properties.RestrictedAccess_API ?? properties.FullAccess_API ?? ""){
+  constructor(clientId: string, FullAccess_API: string, RestrictedAccess_API: string){
     this.clientId = clientId;
     this.apiKey = FullAccess_API;
     this.RestrictedAccess_API = RestrictedAccess_API;
@@ -153,7 +152,7 @@ export class LeadAPIUtils {
     messageText: string,
   ): Promise<string> {
     await this.initializeRequest();
-    const url = `/${this.clientId}/${properties.GrowAasan}/whatsapps/whatsapp_handler`;
+    const url = `/${this.clientId}/${process.env.GrowAasan ?? ''}/whatsapps/whatsapp_handler`;
 
     const body = {
       customerMobile: `+91${randomPhone}`,
@@ -240,10 +239,10 @@ export class LeadAPIUtils {
 
     const body = {
       'Message-Id': `<PN0PR01MB${randomInt}F2568FAF9@PN0PR01MB6630.INDPRD01.PROD.OUTLOOK.COM>`,
-      'recipient': `${properties.CampeignEmail}${properties.Domain}`,
+      'recipient': `${process.env.CampeignEmail ?? ''}${process.env.Domain ?? ''}`,
       'sender': randomEmail,
       'Date': 'Mon, 27 Feb 2023 15:44:35 +0000',
-      'To': `${properties.CampeignEmail}${properties.Domain} <${properties.CampeignEmail}${properties.Domain}>`,
+      'To': `${process.env.CampeignEmail ?? ''}${process.env.Domain ?? ''} <${process.env.CampeignEmail ?? ''}${process.env.Domain ?? ''}>`,
       'subject': randomFileName,
       'token': `110e8343fe4c1e$452ec408aaede6b2e8${randomPassword}`,
       'timestamp': '1677512679',
@@ -267,7 +266,7 @@ export class LeadAPIUtils {
     const finalLeadId = leadId.length > 10 ? leadId : await this.getLeadId(leadId);
     const url = `/client/leads/${finalLeadId}/emails.json`;
     const crmAPIUtils = new CRMAPIUtils(this.clientId, this.apiKey);
-    const userTokenResponse = await crmAPIUtils.getUserToken(userEmail, properties.PASSWORD ?? "");
+    const userTokenResponse = await crmAPIUtils.getUserToken(userEmail, process.env.PASSWORD ?? "");
    
     const payload = {
       email: {
@@ -310,14 +309,14 @@ export class LeadAPIUtils {
     const finalLeadId = leadId.length > 10 ? leadId : await this.getLeadId(leadId);
     const url = `/client/leads/${finalLeadId}/smss.json`;
     const crmAPIUtils = new CRMAPIUtils(this.clientId, this.apiKey);
-    const userTokenResponse = await crmAPIUtils.getUserToken(userEmail, properties.PASSWORD ?? "");
+    const userTokenResponse = await crmAPIUtils.getUserToken(userEmail, process.env.PASSWORD ?? "");
     
     const payload = {
       sms: {
         lead_id: finalLeadId,
         type: "sms",
         content: content,
-        template_id: properties.SMS_Template_ID,
+        template_id: process.env.SmsTemplateId ?? '',
         project_id: projectId || ""
       },
       user_token: userTokenResponse,
@@ -506,7 +505,7 @@ export class LeadAPIUtils {
     const url = `/client/reports/touched-untouched.json`;
     const res = await this.request.post(url, {
       multipart: {
-        current_user_id: properties.Sales_id ?? "",
+        current_user_id: process.env.Sales_id ?? "",
         currently_in: "both",
         group_by: "sales",
         daterange: DateRange,
@@ -517,7 +516,7 @@ export class LeadAPIUtils {
       },
     });
     const body = await res.json();
-    return body[properties.Sales_id ?? ""];
+    return body[process.env.Sales_id ?? ''];
   }
 
 
@@ -635,7 +634,7 @@ export class LeadAPIUtils {
     const finalLeadId = leadId.length > 10 ? leadId : await this.getLeadId(leadId);
     const url = `/client/leads/${finalLeadId}/site_visits.json`;
     const crmAPIUtils = new CRMAPIUtils(this.clientId, this.apiKey);
-    const userTokenResponse = await crmAPIUtils.getUserToken(userEmail, properties.PASSWORD ?? "");
+    const userTokenResponse = await crmAPIUtils.getUserToken(userEmail, process.env.PASSWORD ?? "");
 
     const payload = {
       site_visit: {
@@ -695,7 +694,7 @@ export class LeadAPIUtils {
 
     const existingSV = existingSiteVisit.site_visit;
     const crmAPIUtils = new CRMAPIUtils(this.clientId, this.apiKey);
-    const userTokenResponse = await crmAPIUtils.getUserToken(userEmail, properties.PASSWORD ?? "");
+    const userTokenResponse = await crmAPIUtils.getUserToken(userEmail, process.env.PASSWORD ?? "");
 
     // Prepare the updated site visit object
     let updatedSiteVisit: Record<string, any> = {
@@ -844,7 +843,7 @@ export class LeadAPIUtils {
     const finalLeadId = leadId.length > 10 ? leadId : await this.getLeadId(leadId);
     const url = `/client/leads/${finalLeadId}/followups.json`;
     const crmAPIUtils = new CRMAPIUtils(this.clientId, this.apiKey);
-    const userTokenResponse = await crmAPIUtils.getUserToken(userEmail, properties.PASSWORD ?? "");
+    const userTokenResponse = await crmAPIUtils.getUserToken(userEmail, process.env.PASSWORD ?? "");
 
     const payload = {
       followup: {
@@ -887,7 +886,7 @@ export class LeadAPIUtils {
     const finalLeadId = leadId.length > 10 ? leadId : await this.getLeadId(leadId);
     const url = `/client/leads/${finalLeadId}/followups/${followupId}.json`;
     const crmAPIUtils = new CRMAPIUtils(this.clientId, this.apiKey);
-    const userTokenResponse = await crmAPIUtils.getUserToken(userEmail, properties.PASSWORD ?? "");
+    const userTokenResponse = await crmAPIUtils.getUserToken(userEmail, process.env.PASSWORD ?? "");
 
     const response = await this.request.put(url, {
       multipart: {
@@ -1067,7 +1066,7 @@ export class LeadAPIUtils {
     await this.initializeRequest();
     const crmAPIUtils = new CRMAPIUtils(this.clientId, this.apiKey);
     const userId = await crmAPIUtils.getUserId(userEmail);
-    const token = await crmAPIUtils.getUserToken(userEmail, properties.PASSWORD ?? ""); 
+    const token = await crmAPIUtils.getUserToken(userEmail, process.env.PASSWORD ?? ""); 
     const leadDatabaseId = await this.getLeadId(leadCRMId);
     const dueOn = await this.utils.calculateFutureDate(AheadOf.Day,1,"yyyy-MM-dd HH:mm")+" IST" // yyyy-MM-dd'T'HH:mm:ss.SSS'Z' // 
     const url = `/client/users/${userId}/tasks/`;
@@ -1187,7 +1186,7 @@ export class LeadAPIUtils {
     const finalLeadId = leadCRMId.length > 10 ? leadCRMId : await this.getLeadId(leadCRMId);
     const url = `/client/leads/${finalLeadId}/interested_properties.json`;
     const crmAPIUtils = new CRMAPIUtils(this.clientId, this.apiKey);
-    const userTokenResponse = await crmAPIUtils.getUserToken(userEmail, properties.PASSWORD ?? "");
+    const userTokenResponse = await crmAPIUtils.getUserToken(userEmail, process.env.PASSWORD ?? "");
 
     // Handle projectIds: convert to array if single string
     let projectIdsArray: string[];
@@ -1450,7 +1449,7 @@ export class LeadAPIUtils {
 
     const payload = {
       client_id: this.clientId,
-      api_key: properties.Facebook_API_Key,
+      api_key: process.env.Facebook_API_Key ?? '',
       raw_data: {
         source: "",
         campaign_id: "",

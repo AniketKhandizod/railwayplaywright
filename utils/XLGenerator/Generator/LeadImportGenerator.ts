@@ -1,7 +1,7 @@
 import { XLUtils } from "../XLUtils";
 import { Utils, AheadOf } from "../../PlaywrightTestUtils";
 import {faker} from "@faker-js/faker";
-import { properties } from "../../../Environment/v2";
+import { properties } from "../../env";
 import {Salutation,BHK,PropertyType,educationDetails,ProfessionalDetails,INCOMEDetails,LoanDetails,URLType,Industry,States,Source,Stages,Status,UnqualifiedReasons,LostReasons,Purpose,Furnishing,Facing,
   Nri,
   TransactionType,

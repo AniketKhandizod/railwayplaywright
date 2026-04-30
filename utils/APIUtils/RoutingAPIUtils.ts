@@ -1,5 +1,5 @@
 import { expect, request } from "@playwright/test";
-import { properties } from "../../Environment/v2";
+import { properties } from "../env";
 import { Utils } from "../PlaywrightTestUtils";
 import { UserManagementAPIUtils } from "./UserManagementAPIUtils";
 

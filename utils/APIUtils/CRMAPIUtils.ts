@@ -1,5 +1,5 @@
 import { expect, APIRequestContext, test, request } from "@playwright/test";
-import { properties } from "../../Environment/v2";
+import { properties } from "../env";
 import * as fs from "fs";
 import * as path from "path";
 import { Utils } from "../PlaywrightTestUtils";

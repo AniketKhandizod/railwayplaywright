@@ -1,7 +1,7 @@
 import { Utils, AheadOf } from "../../PlaywrightTestUtils";
 import {faker} from "@faker-js/faker";
 import { CreateHeaderForSiteVisitImport, SVStatus } from "../Constants/Sitevisit.Constants";
-import { properties } from "../../../Environment/v2";
+import { properties } from "../../env";
 import { LeadAPIUtils } from "../../APIUtils/LeadAPIUtils";
 import { XLUtils } from "../XLUtils";
 

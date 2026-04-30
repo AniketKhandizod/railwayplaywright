@@ -1,4 +1,4 @@
-import { properties } from "../../../Environment/v2";
+import { properties } from "../../env";
 
 // LeadConstants.ts
 export const PropertyType = [

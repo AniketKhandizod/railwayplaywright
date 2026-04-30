@@ -2,7 +2,7 @@ import * as path from "path";
 import { faker } from "@faker-js/faker";
 import { CSVUtils } from "./CSVUtils";
 import { Utils, AheadOf } from "../PlaywrightTestUtils";
-import { properties } from "../../Environment/v2";
+import { properties } from "../env";
 import { LeadAPIUtils } from "../APIUtils/LeadAPIUtils";
 import { CreateHeaderForSiteVisitImport } from "../XLGenerator/Constants/Sitevisit.Constants";
 import { CRMAPIUtils } from "../APIUtils/CRMAPIUtils";
