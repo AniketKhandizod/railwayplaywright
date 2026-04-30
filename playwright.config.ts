@@ -1,83 +1,44 @@
-import { defineConfig, devices } from "@playwright/test";
-import os from "os";
-
-// Check if the current platform is Windows
-const isWindows = os.platform() === "win32";
-
-// Global variables
-const dimensions = { width: 1366, height: 720 };
-const isHeadless =  true;
-const baseURL = "https://v2.sell.do";
-const screenshot = "only-on-failure";  // >> //on // off // only-on-failure
-const trace = "on";     // >> // on // off // retain-on-failure
-const video = "retain-on-failure";     // >> // on // off // retain-on-failure // on-first-retry
+import { defineConfig, devices } from '@playwright/test';
 
 /**
- * See https://playwright.dev/docs/test-configuration.
+ * Railway sets RAILWAY_ENVIRONMENT; CI is set on most CI hosts.
+ * Use PLAYWRIGHT_FULL_MATRIX=1 locally (or on a large runner) to run all browsers.
  */
+const useFullBrowserMatrix =
+  process.env.PLAYWRIGHT_FULL_MATRIX === '1' ||
+  (!process.env.CI &&
+    !process.env.RAILWAY_ENVIRONMENT &&
+    process.env.PLAYWRIGHT_SLIM_MATRIX !== '1');
+
+const isAutomatedEnv = !!(process.env.CI || process.env.RAILWAY_ENVIRONMENT);
+
 export default defineConfig({
-  /* Test directory */
-  testDir: "./tests",
-  /* Run tests in files in parallel */
+  testDir: './tests',
   fullyParallel: true,
-  /* Fail the build on CI if you accidentally left test.only in the source code. */
-  forbidOnly: !isWindows, //!!process.env.CI,
-  /* Retry on CI only */
-  retries: !isWindows ? 2 : 0,//process.env.CI ? 2 : 0,
-  /* Opt out of parallel tests on CI. */
-  workers: !isWindows ? 5 : undefined,
-  /* Reporter to use. See https://playwright.dev/docs/test-reporters */
+  forbidOnly: isAutomatedEnv,
+  retries: isAutomatedEnv ? 0 : 0,
+  workers: isAutomatedEnv ? 1 : undefined,
+  timeout: 60_000,
+  expect: { timeout: 15_000 },
   reporter: [
     ['list'],
-    ['allure-playwright'],
-    ['html', { open: 'never' }],
+    ['html', { open: 'never', outputFolder: 'playwright-report' }],
   ],
-
-  // Each test is given 2 minutes. (2 minutes)
-  timeout: 2 * 60 * 1000,
-
-  expect: {
-    toMatchSnapshot: {
-      threshold: 0.2,
-      maxDiffPixelRatio: 0.1,
-    },
-    // Exceptional timeout for long running tests (2 minutes)
-    timeout: 2 * 60 * 1000,
+  use: {
+    /** Browser navigation default only. CRM JSON APIs use `CRM_API_BASE_URL` (see `utils/APIUtils/crmApiContext.ts`). */
+    baseURL: process.env.BASE_URL ?? 'https://railway.com',
+    trace: 'on-first-retry',
+    screenshot: 'only-on-failure',
+    video: 'retain-on-failure',
+    navigationTimeout: 45_000,
+    actionTimeout: 15_000,
   },
 
-  /* Configure projects for major browsers */
-  projects: [
-    {
-      name: 'webkit',
-      use: {
-        baseURL: baseURL,
-        browserName: "webkit",// chromium // firefox // webkit
-        trace: trace,// on // off // only on-failure
-        video: video, 
-        viewport: dimensions,
-        screenshot: screenshot,
-        headless: isHeadless,
-
-        permissions: ['geolocation'],
-        geolocation: { latitude: 18.5246, longitude: 73.8786 },
-
-        isMobile: false,
-        hasTouch: false,
-
-        acceptDownloads: true,
-        javaScriptEnabled: true,
-
-        colorScheme: 'dark',
-
-        ignoreHTTPSErrors: false,
-        locale: 'en-IN',
-        timezoneId: 'Asia/Kolkata',
-
-      },
-    },
-    {
-      name: 'Google Chrome',
-      use: { ...devices['Desktop Chrome'], channel: 'chrome' },
-    },
-  ],
+  projects: useFullBrowserMatrix
+    ? [
+        { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+        { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
+        { name: 'webkit', use: { ...devices['Desktop Safari'] } },
+      ]
+    : [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
 });
