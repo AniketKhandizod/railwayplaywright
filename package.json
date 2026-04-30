@@ -6,7 +6,8 @@
   "scripts": {
     "test": "playwright test",
     "test:smoke": "cross-env PLAYWRIGHT_SLIM_MATRIX=1 playwright test",
-    "test:matrix": "cross-env PLAYWRIGHT_FULL_MATRIX=1 playwright test"
+    "test:matrix": "cross-env PLAYWRIGHT_FULL_MATRIX=1 playwright test",
+    "gen:env": "node scripts/gen-env-from-v2.cjs"
   },
   "repository": {
     "type": "git",
