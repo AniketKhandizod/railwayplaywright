@@ -4,14 +4,6 @@ import { LeadAPIUtils } from '../utils/APIUtils/LeadAPIUtils';
 import { Utils } from '../utils/PlaywrightTestUtils';
 
 test('Testrail', async () => {
-  test.skip(
-    !(
-      properties.Client_id?.trim() &&
-      properties.FullAccess_API?.trim() &&
-      properties.RestrictedAccess_API?.trim()
-    ),
-    'Set CLIENT_ID, FULL_ACCESS_API, RESTRICTED_ACCESS_API and BASE_URL (CRM API host, not railway.com) to run this test.',
-  );
 
   const clientId = properties.Client_id ?? '';
   const fullAccess = properties.FullAccess_API ?? '';
@@ -21,6 +13,12 @@ test('Testrail', async () => {
   const phone = utils.generateRandomPhoneNumber();
   const email = utils.generateRandomEmail();
 
+  console.log('Client ID: ', clientId);
+  console.log('Full Access: ', fullAccess);
+  console.log('Restricted: ', restricted);
+  console.log('Phone: ', phone);
+  console.log('Email: ', email);
+
   const leadApi = new LeadAPIUtils(clientId, fullAccess, restricted);
   const lead = await leadApi.createLeadWithDetails(phone, email, 'Railway smoke lead');
 
@@ -29,3 +27,4 @@ test('Testrail', async () => {
   expect(lead).toBeDefined();
   expect(lead.sell_do_lead_id ?? lead.id).toBeTruthy();
 });
+
