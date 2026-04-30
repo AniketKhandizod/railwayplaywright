@@ -25,6 +25,7 @@ export default defineConfig({
     ['html', { open: 'never', outputFolder: 'playwright-report' }],
   ],
   use: {
+    /** Browser navigation default only. CRM JSON APIs use `CRM_API_BASE_URL` (see `utils/APIUtils/crmApiContext.ts`). */
     baseURL: process.env.BASE_URL ?? 'https://railway.com',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',

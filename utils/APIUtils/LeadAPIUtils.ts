@@ -1,6 +1,7 @@
-import { APIRequestContext, APIResponse, expect, request } from "@playwright/test";
+import { APIRequestContext, APIResponse, expect } from "@playwright/test";
 import { properties } from "../../Environment/v2";
 import { AheadOf, Utils } from "../PlaywrightTestUtils";
+import { newCrmApiRequestContext } from "./crmApiContext";
 import { CRMAPIUtils } from "./CRMAPIUtils";
 import { UserManagementAPIUtils } from "./UserManagementAPIUtils";
 import { BulkActionAPIUtils } from "./BulkActionAPIUtils";
@@ -54,7 +55,7 @@ export class LeadAPIUtils {
   private async initializeRequest() {
     if (!this.request) {
       this.utils = new Utils();
-      this.request = await request.newContext();
+      this.request = await newCrmApiRequestContext();
     }
   }
 
@@ -113,9 +114,10 @@ export class LeadAPIUtils {
       api_key: this.RestrictedAccess_API,
     };
 
-    const maxRetries = 10;
-    let lastError: Error;
-    
+    const maxRetries =
+      process.env.RAILWAY_ENVIRONMENT || process.env.CI ? 2 : 10;
+    let lastError: Error | undefined;
+
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
         const response = await this.request.post(`/api/leads/create`, {
@@ -123,23 +125,26 @@ export class LeadAPIUtils {
           headers: {
             "Content-Type": "application/json",
           },
-          timeout: 30000, // 30 second timeout
+          timeout: 30000,
         });
-        expect(response.ok()).toBeTruthy();
-        return await response.json();
+        if (response.ok()) {
+          return await response.json();
+        }
+        const errBody = await response.text();
+        lastError = new Error(
+          `POST /api/leads/create → ${response.status()} ${response.statusText()} — ${errBody.slice(0, 800)}`,
+        );
       } catch (error) {
         lastError = error as Error;
-        
-        if (attempt === maxRetries) {
-          throw new Error(`Failed to create lead after ${maxRetries} attempts. Last error: ${lastError.message}`);
-        }
-        
-        // Wait before retrying (exponential backoff)
-        await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+      }
+      if (attempt < maxRetries) {
+        await new Promise((resolve) => setTimeout(resolve, 1000 * attempt));
       }
     }
-    
-    throw lastError!;
+
+    throw new Error(
+      `Failed to create lead after ${maxRetries} attempts. Last error: ${lastError?.message ?? "unknown"}`,
+    );
   }
 
   // ✅ Incoming WhatsApp from GrowAasan
@@ -1148,8 +1153,7 @@ export class LeadAPIUtils {
     await this.initializeRequest();
     const dateRange = await this.utils.calculateFutureDate(AheadOf.Day, -365, "dd/MM/yyyy")+" 00:00:00 - "+await this.utils.calculateFutureDate(AheadOf.Day, 0, "dd/MM/yyyy")+" 23:59:59";
 
-    const req = await request.newContext();
-    const response = await req.post(URL, {
+    const response = await this.request!.post(URL, {
       form: {
         reassigned_direction:reassignedDirection,
         "sales_ids[]": sales,
