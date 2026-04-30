@@ -5,9 +5,9 @@ import { Utils } from '../utils/PlaywrightTestUtils';
 
 test('Testrail', async () => {
 
-  const clientId = properties.Client_id ?? '';
-  const fullAccess = properties.FullAccess_API ?? '';
-  const restricted = properties.RestrictedAccess_API ?? '';
+  const clientId = process.env.Client_id ?? '';
+  const fullAccess = process.env.FullAccess_API ?? '';
+  const restricted = process.env.RestrictedAccess_API ?? '';
 
   const utils = new Utils();
   const phone = utils.generateRandomPhoneNumber();

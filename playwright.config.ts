@@ -16,7 +16,7 @@ export default defineConfig({
   testDir: './tests',
   fullyParallel: true,
   forbidOnly: isAutomatedEnv,
-  retries: isAutomatedEnv ? 2 : 0,
+  retries: isAutomatedEnv ? 0 : 0,
   workers: isAutomatedEnv ? 1 : undefined,
   timeout: 60_000,
   expect: { timeout: 15_000 },
